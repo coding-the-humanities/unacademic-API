@@ -17,6 +17,11 @@ router.get('/', function(req, res){
   res.send('welcome to unacademic-api');
 });
 
+router.use(function(req, res, next) {
+  console.log('%s %s %s', req.method, req.url, JSON.stringify(req.body));
+  next();
+});
+
 app.use(namespace, router);
 
 app.get('*', function(req,res){
