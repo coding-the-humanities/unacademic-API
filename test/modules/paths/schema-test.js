@@ -27,28 +27,22 @@ describe('When creating a Path', function() {
 		});
 
 		it('returns a path with the required fields', function() {
-			var path = new Path(mock_resource);
-			expect(path.curator).to.equal("Ashley Williams");
-			expect(path.version).to.equal("1.0.0");
-			expect(path.title).to.equal("Writing RESTful APIs with Express and MongoDB");
-		});
-
-		it('returns a path with the required fields', function() {
-			var path = new Path(mock_resource);
 			expect(path.created).to.be.an.instanceof(Date);
 			expect(path._id).to.exist;
+		});
+
+		it('returns a path with arrays for the right fields', function() {
 			expect(path.waypoints).to.be.an.instanceof(Array);
 			expect(path.learners).to.be.an.instanceof(Array);
 			expect(path.forks).to.be.an.instanceof(Array);
 			expect(path.keywords).to.be.an.instanceof(Array);
 		});
 
+		it('returns a path with the values from the mock resource', function() {
+			expect(path.curator).to.equal("Ashley Williams");
+			expect(path.version).to.equal("1.0.0");
+			expect(path.title).to.equal("Writing RESTful APIs with Express and MongoDB");
+		});
+
 	});
-	/*
-	*/
-
-
-	// validate version string
-	// validate created is of type date
-	//
 });
