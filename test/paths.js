@@ -1,5 +1,5 @@
 const superagent = require('superagent');
-const expect = require('expect.js');
+const expect = require('chai').expect;
 
 describe('unacademic-api server', function(){
   var resource = 'paths';
@@ -13,7 +13,7 @@ describe('unacademic-api server', function(){
     title: "Writing RESTful APIs with Express and MongoDB",
     version: "2.0.0"
   };
-  
+
   var host = 'http://localhost';
   var port = ':8080';
   var namespace = '/api/0';
