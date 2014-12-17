@@ -22,10 +22,21 @@ router.use(function(req, res, next) {
   next();
 });
 
+var modules = ["paths"];
+
+modules.forEach(function(module) {
+	var routes = require('./modules/' + module + '/routes');
+	app.use(namespace + '/' + module, routes);
+});
+
 app.use(namespace, router);
 
-app.get('*', function(req,res){
+app.get('/', function(req,res){
   res.redirect(namespace+'/');
 });
 
-module.exports = app; 
+app.get(namespace, function(req, res) {
+	res.send('respond with API message');
+});
+
+module.exports = app;
