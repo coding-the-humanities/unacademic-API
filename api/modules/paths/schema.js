@@ -7,11 +7,10 @@ var Path;
 var PathSchema = new mongoose.Schema({
 	curator: {type: String, required: true},
 	title: {type: String, require: true},
-	version: {type: String},
+	version: {type: String, require: true},
 	image_url: {type: String},
 	summary: {type: String},
 	description: {type: String},
-	version: {type: String},
 	license: {type: String},
 	keywords: {type: [String]},
 	forks: {type: [String]},
@@ -21,11 +20,7 @@ var PathSchema = new mongoose.Schema({
 	created: {type: Date, required: true, default: Date.now},
 })
 
-/*
- * Convert model to API-safe object
- *
- * @return [Object] apiObject
- */
+// Convert model to API-safe object
 
 PathSchema.methods.toAPI = function(cb) {
 	ret = this;

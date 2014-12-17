@@ -18,7 +18,8 @@ describe('When creating a Path', function() {
 		var mock_resource = {
 			curator: "Ashley Williams",
 			title: "Writing RESTful APIs with Express and MongoDB",
-			version: "1.0.0"
+			version: "1.0.0",
+			keywords: ["programming", "html", "css"]
 		};
 
 		beforeEach(function(done) {
@@ -28,14 +29,19 @@ describe('When creating a Path', function() {
 
 		it('returns a path with the required fields', function() {
 			expect(path.created).to.be.an.instanceof(Date);
-			expect(path._id).to.exist;
+			expect(path._id).not.to.be.undefined;
+			expect(path.curator.length > 0);
 		});
 
-		it('returns a path with arrays for the right fields', function() {
-			expect(path.waypoints).to.be.an.instanceof(Array);
-			expect(path.learners).to.be.an.instanceof(Array);
-			expect(path.forks).to.be.an.instanceof(Array);
-			expect(path.keywords).to.be.an.instanceof(Array);
+		it('returns a path with a semVer-compliant version', function() {
+			expect(path.version).to.match(/^[0-9]+\.[0-9]+\.[0-9]+/);
+		});
+
+		it('returns a path with lowercase keywords', function() {
+			expect(path.keywords.length).to.equal(3);
+			path.keywords.forEach(function(keyword) {
+				expect(keyword).to.not.match(/[A-Z]/);
+			});
 		});
 
 		it('returns a path with the values from the mock resource', function() {
@@ -43,6 +49,7 @@ describe('When creating a Path', function() {
 			expect(path.version).to.equal("1.0.0");
 			expect(path.title).to.equal("Writing RESTful APIs with Express and MongoDB");
 		});
+
 
 	});
 });
