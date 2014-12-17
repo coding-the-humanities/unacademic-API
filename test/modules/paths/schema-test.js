@@ -3,24 +3,30 @@ var mongoose = require('mongoose');
 
 var Path = require('../../../api/modules/paths/schema');
 
+var mock_resource = {
+	curator: "Ashley Williams",
+	title: "Writing RESTful APIs with Express and MongoDB",
+	version: "1.0.0",
+	keywords: ["programming", "HTML", "CSS"]
+};
 
 describe('When creating a Path', function() {
 	var path;
-	describe('When creating an empty path', function() {
+	describe('that is empty', function() {
 		// simple path creation
 		path = new Path();
 		it('returns a path object', function() {
 			expect(path).not.to.be.undefined;
 		});
+
+		it('returns a path with the required fields', function() {
+			expect(path.created).to.be.an.instanceof(Date);
+			expect(path._id).not.to.be.undefined;
+		});
+
 	});
 
-	describe('When creating a non-empty path', function() {
-		var mock_resource = {
-			curator: "Ashley Williams",
-			title: "Writing RESTful APIs with Express and MongoDB",
-			version: "1.0.0",
-			keywords: ["programming", "html", "css"]
-		};
+	describe('that is non-empty', function() {
 
 		beforeEach(function(done) {
 			path = new Path(mock_resource);
@@ -30,18 +36,6 @@ describe('When creating a Path', function() {
 		it('returns a path with the required fields', function() {
 			expect(path.created).to.be.an.instanceof(Date);
 			expect(path._id).not.to.be.undefined;
-			expect(path.curator.length > 0);
-		});
-
-		it('returns a path with a semVer-compliant version', function() {
-			expect(path.version).to.match(/^[0-9]+\.[0-9]+\.[0-9]+/);
-		});
-
-		it('returns a path with lowercase keywords', function() {
-			expect(path.keywords.length).to.equal(3);
-			path.keywords.forEach(function(keyword) {
-				expect(keyword).to.not.match(/[A-Z]/);
-			});
 		});
 
 		it('returns a path with the values from the mock resource', function() {
