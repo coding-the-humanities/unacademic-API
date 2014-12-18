@@ -26,7 +26,7 @@ describe('unacademic-api server', function(){
       .send(mock_resource)
       .end(function(e, res){
         expect(e).to.equal(null);
-        id = res.body[0]._id;
+        id = res.body._id;
         element_url = collection_url + '/' + id;
         done();
       });
@@ -57,7 +57,8 @@ describe('unacademic-api server', function(){
       .end(function(e, res){
         expect(e).to.eql(null);
         expect(typeof res.body).to.eql('object');
-        expect(res.body.msg).to.eql('success');
+        expect(res.body._id).to.eql(id);
+        expect(res.body.version).to.eql('2.0.0');
         done();
       });
   });
@@ -78,7 +79,8 @@ describe('unacademic-api server', function(){
       .end(function(e,res){
         expect(e).to.eql(null);
         expect(typeof res.body).to.eql('object');
-        expect(res.body.msg).to.eql('success');
+        expect(res.body._id).to.eql(id);
+        expect(res.body.version).to.eql('2.0.0');
         done();
       });
   });
