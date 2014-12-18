@@ -1,12 +1,22 @@
 const port = process.env.PORT || '8080';
 const host = process.env.HOST || '0.0.0.0';
+const mongoose = require('mongoose');
 const express = require('express');
 const app = express();
 
-app.use(require('./api'));
+var Path = require('./api/modules/paths/schema');
 
-app.listen(port, host);
+var mongoURL = "mongodb://" + host + "/unacademic_test1";
 
-console.log('Server running on %s:%d...', host, port);
+mongoose.connect(mongoURL, function(err) {
+	if (err) { throw err; }
+
+	app.use(require('./api'));
+
+	app.listen(port, host);
+
+	console.log('Server running on %s:%d...', host, port);
+
+});
 
 module.exports = app;
