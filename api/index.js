@@ -22,7 +22,7 @@ router.use(function(req, res, next) {
   next();
 });
 
-var modules = ["paths"];
+var modules = ["paths", "points"];
 
 modules.forEach(function(module) {
 	var routes = require('./modules/' + module + '/routes');
