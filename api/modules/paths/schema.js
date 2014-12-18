@@ -6,8 +6,8 @@ var Path;
 
 var PathSchema = new mongoose.Schema({
 	curator: {type: String, required: true},
-	title: {type: String, require: true},
-	version: {type: String, require: true},
+	title: {type: String, required: true},
+	version: {type: String, required: true},
 	image_url: {type: String},
 	summary: {type: String},
 	description: {type: String},
@@ -16,21 +16,34 @@ var PathSchema = new mongoose.Schema({
 	forks: {type: [String]},
 	forked_from: {type: String},
 	learners: {type: [String]},
-	waypoints: {type: [String], required: true},
-	created: {type: Date, required: true, default: Date.now},
-})
+	waypoints: {type: [String]},
+	created: {type: Date, required: true, default: Date.now}
+});
 
 // Convert model to API-safe object
 
 PathSchema.methods.toAPI = function(cb) {
-	ret = this;
-
+	var ret = this;
 	delete ret._id;
 	delete ret.__v;
 	cb(null, ret);
+};
 
-}
+PathSchema.methods.validate = function(cb) {
+	// check that keywords are lowercase
+	var validPath = this;
+	validPath.keywords = this.keywords.map(function(value) {
+		return value.toLowerCase();
+	});
+	cb(null, validPath);
+};
 
 Path = mongoose.model("path", PathSchema);
+
+PathSchema.methods.updateConflict = function updateConflict (updateId) {
+	if (this._id === undefined) { return false; }
+	if (this._id === updateId) { return true; }
+	return false;
+};
 
 module.exports = Path;
