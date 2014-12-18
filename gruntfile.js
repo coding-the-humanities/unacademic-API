@@ -7,7 +7,7 @@ module.exports = function(grunt) {
         jshintrc: '.jshintrc'
       },
       api: {
-        src: 'api/*.js'
+        src: 'api/**/*.js'
       }
     },
     watch: {
@@ -15,7 +15,7 @@ module.exports = function(grunt) {
         files: ['api/**'],
         tasks: ['jshint']
       }
-    }   
+    }
   });
 
   grunt.registerTask('lint', 'Lint the JavaScript',[
