@@ -19,6 +19,11 @@ con.once('open', function() {
 	console.log('connected to mongodb successfully');
 });
 
+con.once('error', function() {
+	console.log('MongoLab connection error');
+	console.error.bind(console, 'connection error:');
+});
+
 
 app.use(require('./api'));
 
