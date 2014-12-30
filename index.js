@@ -3,20 +3,28 @@ const host = process.env.HOST || '0.0.0.0';
 const mongoose = require('mongoose');
 const express = require('express');
 const app = express();
+const Secrets = require('./secrets');
+const secrets = Secrets.getSecrets();
 
 var Path = require('./api/modules/paths/schema');
 
-var mongoURL = "mongodb://" + host + "/unacademic_test1";
+var mongoLocalURL = "mongodb://" + host + "/unacademic_api";
+var mongoLabURL = "mongodb://" + secrets.user + ":" + secrets.pass + "@ds029051.mongolab.com:29051/unacademic_api";
 
-mongoose.connect(mongoURL, function(err) {
-	if (err) { throw err; }
+mongoose.connect(mongoLabURL);
 
-	app.use(require('./api'));
+var con = mongoose.connection;
 
-	app.listen(port, host);
-
-	console.log('Server running on %s:%d...', host, port);
-
+con.once('open', function() {
+	console.log('connected to mongodb successfully');
 });
+
+
+app.use(require('./api'));
+
+app.listen(port, host);
+
+console.log('Server running on %s:%d...', host, port);
+
 
 module.exports = app;
