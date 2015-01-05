@@ -3,20 +3,19 @@ const host = process.env.HOST || '0.0.0.0';
 const mongoose = require('mongoose');
 const express = require('express');
 const app = express();
-//const Secrets = require('./secrets');
-//const secrets = Secrets.getSecrets();
 
 var Path = require('./api/modules/paths/schema');
 
-var secrets = {
+var login = {
 	"user": "testuser",
 	"pass": "blabla"
 };
 
 var mongoLocalURL = "mongodb://" + host + "/unacademic_api";
-var mongoLabURL = "mongodb://" + secrets.user + ":" + secrets.pass + "@ds029051.mongolab.com:29051/unacademic_api";
+var mongoLabURL = "mongodb://" + login.user + ":" + login.pass + "@ds029051.mongolab.com:29051/unacademic_api";
 
 mongoose.connect(mongoLabURL);
+//mongoose.connect(mongoLocalURL);
 
 var con = mongoose.connection;
 
