@@ -56,4 +56,8 @@ describe("get points", function() {
         expect(points[0].created).to.be.an.instanceof(Date);
     });
 
+	after(function(done) {
+		mongoose.connection.close();
+		done();
+	});
 });
