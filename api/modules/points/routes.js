@@ -4,14 +4,16 @@ var pointsData = require('./points-data');
 
 var router = express.Router();
 
-router.post('/', function(req,res, next) {
+router.post('/', function(req,res) {
 	var point = new Point(req.body);
-	point.validate(function(err, validPoint) {
-		if (err) { res.send('Invalid point'); }
-
-		point.save(function(err, result) {
-			if (err) { next(err); }
-			res.json(result);
+	console.log('posting point:');
+	//console.log(point);
+	point.savePoint(function(err, savedPoint) {
+		if (err) {
+			return res.status(400).send(err);
+		}
+		savedPoint.toAPI(function(err, apiPoint) {
+			return res.status(200).json(apiPoint);
 		});
 	});
 });
@@ -19,7 +21,7 @@ router.post('/', function(req,res, next) {
 router.get('/', function(req, res, next) {
 	console.log('getting all points');
 	pointsData.findPoints({}).then(function(points) {
-		res.json(points);
+		return res.json(points);
 	});
 	/*
 	Point.find(function(err, points) {
