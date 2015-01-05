@@ -8,7 +8,9 @@
   },
   "author": "Coding the Humanities",
   "scripts": {
-    "dev": "grunt"
+    "dev": "grunt",
+	"start": "node index.js",
+	"test": "mocha test/points-*.js"
   },
   "dependencies": {
     "body-parser": "^1.10.0",
