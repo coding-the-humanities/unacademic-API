@@ -1,5 +1,5 @@
 var mongoose = require('mongoose');
-var Promise = require('bluebird');
+var BPromise = require('bluebird');
 
 var Point;
 
@@ -38,7 +38,7 @@ var PointSchema = new mongoose.Schema({
 function testMissingFields(point) {
 	var missing = [];
 	var count = 0;
-	return new Promise(function(resolve, reject) {
+	return new BPromise(function(resolve, reject) {
 		requiredFields.forEach(function(field) {
 			if (point[field] === undefined) {
 				missing.push(field);
@@ -87,7 +87,7 @@ function validateRequiredFields(point, cb) {
 }
 
 function lowerKeywords(point) {
-	return new Promise(function(resolve, reject) {
+	return new BPromise(function(resolve, reject) {
 		var lowKeywords = [];
 		point.keywords.forEach(function(keyword) {
 			lowKeywords.push(keyword.toLowerCase());
@@ -100,7 +100,7 @@ function lowerKeywords(point) {
 }
 
 function testForeignKey(curator, title) {
-	return new Promise(function(resolve, reject) {
+	return new BPromise(function(resolve, reject) {
 		// find points with curator and title as query
 		var query = {"curator": curator, "title": title};
 		Point.findOne(query, function(err, point) {

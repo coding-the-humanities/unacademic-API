@@ -1,19 +1,18 @@
 var expect = require('chai').expect;
 var mongoose = require('mongoose');
-var Promise = require("bluebird");
+var BPromise = require("bluebird");
 var seedPoints = require('../seeding/seedPoints');
 var pointsData = require('../api/modules/points/points-data');
 
 var mongoLabURL = "mongodb://admin:eOZE.97iNn@ds029051.mongolab.com:29051/unacademic_api";
 
 function resetPoints() {
-    return new Promise(function(resolve, reject) {
-        console.log('resetting points database');
+    return new BPromise(function(resolve, reject) {
         mongoose.connection.collections['points'].drop(resolve, reject);
     });
 }
 
-var connectDB = Promise.promisify(mongoose.connect, mongoose);
+var connectDB = BPromise.promisify(mongoose.connect, mongoose);
 
 
 describe("get points", function() {

@@ -1,23 +1,22 @@
 var expect = require("chai").expect;
 var superagent = require("superagent");
 var mongoose = require('mongoose');
-var Promise = require('bluebird');
+var BPromise = require('bluebird');
 var pointsData = require('../api/modules/points/points-data');
 var Point = require('../api/modules/points/schema');
 
-var createPoint = Promise.promisify(Point.create, Point);
+var createPoint = BPromise.promisify(Point.create, Point);
 
 var mongoLocalURL = "mongodb://localhost/unacademic_api";
 var mongoLabURL = "mongodb://admin:eOZE.97iNn@ds029051.mongolab.com:29051/unacademic_api";
 
 function resetPoints() {
-    return new Promise(function(resolve, reject) {
-        console.log('resetting points database');
+    return new BPromise(function(resolve, reject) {
         mongoose.connection.collections['points'].drop(resolve, reject);
     });
 }
 
-var connectDB = Promise.promisify(mongoose.connect, mongoose);
+var connectDB = BPromise.promisify(mongoose.connect, mongoose);
 
 var mockPoint = {
 	title: "Async",
@@ -44,7 +43,6 @@ describe("when saving points", function() {
 				error = err;
 				postedPoint = response.body;
 				status = response.status;
-				console.log(postedPoint);
 				done();
 			});
 		});
@@ -85,11 +83,8 @@ describe("when saving point with existing foreign key", function() {
 describe("when saving invalid points", function() {
 
 	before(function(done) {
-		//connectDB(mongoLabURL)
 		resetPoints()
 			.then(done);
-		//connectDB(mongoLocalURL)
-		//.then(resetPoints);
 	});
 
 	it("should return an error if required fields are missing", function(done) {

@@ -1,8 +1,8 @@
-var promise = require('bluebird');
+var BPromise = require('bluebird');
 var mongoose = require('mongoose');
 
 exports.findPoints = function (query) {
-	return promise.cast(mongoose.model('point').find(query).exec());
+	return BPromise.cast(mongoose.model('point').find(query).exec());
 };
 
 
