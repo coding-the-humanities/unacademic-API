@@ -4,29 +4,25 @@ var pointsData = require('./points-data');
 
 var router = express.Router();
 
-router.post('/', function(req,res) {
+router.post('/', function(req,res, next) {
 	var point = new Point(req.body);
 	console.log('posting point:');
-	//console.log(point);
 	point.savePoint(function(err, savedPoint) {
 		if (err) {
-			return res.status(400).send(err);
+			return res.status(400).send(err.message);
 		}
-		savedPoint.toAPI(function(err, apiPoint) {
-			return res.status(200).json(apiPoint);
-		});
+		return res.status(200).json(savedPoint);
 	});
 });
 
 router.get('/', function(req, res, next) {
 	console.log('getting all points');
-	pointsData.findPoints({}).then(function(points) {
+	pointsData.getPoints().then(function(points) {
 		return res.json(points);
 	});
 	/*
-	Point.find(function(err, points) {
-		if (err) { next(err); }
-		res.json(points);
+	pointsData.findPoints({}).then(function(points) {
+		return res.json(points);
 	});
 	*/
 
@@ -35,19 +31,23 @@ router.get('/', function(req, res, next) {
 router.get('/:id', function(req, res, next) {
 	console.log('getting point ' + req.params.id);
 	var pointId = req.params.id;
-	Point.findById(pointId, function(err, point) {
-		if (err) { next(err); }
-		res.json(point);
+	pointsData.getPoint(pointId, function(error, point) {
+		if (error) {
+			return res.status(500).send(error);
+		}
+		return res.status(200).json(point);
 	});
 });
 
 router.put('/:id', function(req, res, next) {
 	console.log('updating point ' + req.params.id);
-	Point.update({"_id": req.params.id}, {$set: req.body}, function(err, result) {
-		if (err) { return next(err); }
-		Point.findById(req.params.id, function(err, point) {
-			res.json(point);
-		});
+	pointsData.updatePoint(req.params.id, req.body, function(error, updatedPoint) {
+		if (error) {
+			console.log('router gets error: ');
+			console.log(error.message);
+			return res.status(500).send(error.message);
+		}
+		return res.status(200).json(updatedPoint);
 	});
 });
 
