@@ -1,5 +1,6 @@
 var mongoose = require('mongoose');
 var BPromise = require('bluebird');
+var pointsData = require('./points-data');
 
 var Point;
 
@@ -47,120 +48,183 @@ function testMissingFields(point) {
 			if (count === requiredFields.length) {
 				if (missing.length > 0) {
 					console.log('testMissingFields: missing fields error');
-					return reject("Point is missing required fields '" + missing.join("' and '") + "'");
+					var message = "Point is missing required fields '" + missing.join("' and '") + "'";
+					var error = new Error(message);
+					console.log(error);
+					return reject(error);
 				}
-				//return cb(null);
 				console.log('testMissingFields: no error');
-				return resolve(null);
+				return resolve(point);
 			}
 		});
 	});
 }
 
-function testVersionFormat(point, cb) {
-	if (!(point.version.match(/^[0-9]+\.[0-9]+\.[0-9]+/))) {
-		return cb("version is not in SemVer format");
-	}
-	return cb(null);
-}
-
-function validateRequiredFields(point, cb) {
-	var validationError = '';
-	testMissingFields(point)
-		.then(function() {
-			console.log('moving on to testVersionFormat ');
-			testVersionFormat(point, function(err) {
-				if (err) {
-					validationError += err + '\n';
-				}
-
-				if (validationError.length === 0) {
-					return cb(null);
-				}
-				return cb(validationError);
-			});
-		}, function(err) {
-			validationError += err + '\n';
-			return cb(validationError);
+function testCurator(pointData, id) {
+	return new BPromise(function(resolve, reject) {
+		Point.findById(id, function(err, foundPoint) {
+			if (foundPoint.curator !== pointData.curator) {
+				var error = new Error('updated waypoint has different curator than existing waypoint');
+				console.log(error);
+				return reject(error);
+			}
+			console.log('testCurator: no error');
+			pointData.id = id;
+			return resolve(pointData);
 		});
-	// TO IMPLEMENT: curator should be existing user in database
+	});
+}
+function testVersionFormat(point) {
+	return new BPromise(function(resolve, reject) {
+		if (!(point.version.match(/^[0-9]+\.[0-9]+\.[0-9]+/))) {
+			var error = new Error("version is not in SemVer format");
+			return reject(error);
+			//return reject("version is not in SemVer format");
+		}
+			console.log('testVersionFormat: no error');
+		return resolve(point);
+	});
 }
 
 function lowerKeywords(point) {
-	return new BPromise(function(resolve, reject) {
+	return new BPromise(function(resolve) {
 		var lowKeywords = [];
 		point.keywords.forEach(function(keyword) {
 			lowKeywords.push(keyword.toLowerCase());
 			if (lowKeywords.length === point.keywords.length) {
 				point.keywords = lowKeywords;
-				return resolve(null);
+				console.log('lowerKeywords: no error');
+				return resolve(point);
 			}
 		});
 	});
 }
 
-function testForeignKey(curator, title) {
+function testForeignKey(point) {
 	return new BPromise(function(resolve, reject) {
 		// find points with curator and title as query
-		var query = {"curator": curator, "title": title};
-		Point.findOne(query, function(err, point) {
+		var query = {"curator": point.curator, "title": point.title};
+		Point.findOne(query, function(err, result) {
 			if (err) { return reject(err); }
 			// if point is not null, the foreign key is not unique
-			if (point) {
+			if (result) {
 				console.log('foreign key ' + query +' already exists');
-				err = 'Combination of curator and title already exists';
+				err = new Error('Combination of curator and title already exists');
 				return reject(err);
 			}
 
 			console.log('foreign key ' + query +' is accepted');
-			return resolve(null);
+			return resolve(point);
 		});
 	});
 }
 
 // Convert model to API-safe object
 
-PointSchema.methods.toAPI = function(cb) {
-	var ret = { 'id': this.id };
-	for (var prop in this) {
-		if (allFields.indexOf(prop) > 1) {
-			ret[prop] = this[prop];
+function toAPI(point) {
+	return new BPromise(function(resolve) {
+		var ret = { 'id': point.id };
+		for (var prop in point) {
+			if (allFields.indexOf(prop) > 1) {
+				ret[prop] = point[prop];
+			}
 		}
-	}
-	//ret['id'] = this._id;
-	return cb(null, ret);
-};
+			console.log('toAPI: no error');
+		return resolve(ret);
+	});
+}
 
-PointSchema.methods.savePoint = function(cb) {
-	console.log('starting save');
-	var ret = this;
-	validateRequiredFields(ret, function(err) {
-		if (err) {
-			console.log('Error validating required fields:');
-			console.log(err);
-			return cb(err, null);
-		}
-		console.log('validating required fields done');
-		lowerKeywords(ret)
-		.then(function() {
-			console.log('lowercasing keywords done');
-			testForeignKey(ret.curator, ret.title)
-			.then(function() {
-				console.log('testing foreign key done');
-				ret.save(function(err, savedPoint) {
-					if (err) {
-						return cb(err, null);
-					}
-					console.log('saving point done');
-					return cb(err, savedPoint);
-				});
-			}, function(err) {
-				if (err) { return cb(err, null); }
+exports.toAPI = toAPI;
 
+function updateDB(pointData) {
+	return new BPromise(function(resolve, reject) {
+		Point.update({"_id": pointData.id}, {$set: pointData}, function(err, result) {
+			if (err) { return reject(err); }
+			Point.findById(pointData.id, function(err, updatedPoint) {
+				if (err) {
+					var error = new Error ('error updating point');
+					console.log(error);
+					return reject(error);
+				}
+				console.log('updateDB: no error');
+				return resolve(updatedPoint);
 			});
 		});
 	});
+}
+
+function updatePoint(id, pointData, cb) {
+	console.log('starting update');
+	var updatePromise = testCurator(pointData, id)
+		.then(testMissingFields)
+		.then(testVersionFormat)
+		.then(lowerKeywords)
+		.then(updateDB)
+		.then(toAPI)
+		.then(function(updatedPoint) {
+			//return resolve(updatedPoint);
+			cb(null, updatedPoint);
+		});
+
+	updatePromise.catch(function(error) {
+		console.log('updatePoint catches an error');
+		console.log(error);
+		cb(error, null);
+	});
+}
+
+exports.updatePoint = updatePoint;
+
+function saveToDB(point) {
+	return new BPromise(function(resolve, reject) {
+		point.save(function(err, savedPoint) {
+			if (err) {
+				return reject(err);
+			}
+			console.log('point saved');
+			return resolve(savedPoint);
+		});
+	});
+}
+
+PointSchema.methods.savePoint = function(cb) {
+	console.log('starting save');
+	var point = this;
+	var savePromise = testForeignKey(point)
+		.then(testMissingFields)
+		.then(testVersionFormat)
+		.then(lowerKeywords)
+		.then(saveToDB)
+		.then(toAPI)
+		.then(function(savedPoint) {
+			//return resolve(savedPoint);
+			cb(null, savedPoint);
+		});
+
+	savePromise.catch(function(error) {
+		console.log('savePoint catches an error');
+		console.log(error);
+		cb(error, null);
+	});
 };
+
+var toAPIPoints = function(points) {
+	return new BPromise(function(resolve, reject) {
+		var apiSafePoints = [];
+		points.forEach(function(point) {
+			var pointPromise = toAPI(point);
+			pointPromise.then(function(apiSafePoint) {
+				apiSafePoints.push(apiSafePoint);
+				if (apiSafePoints.length === points.length) {
+					return resolve(apiSafePoints);
+				}
+			});
+			pointPromise.catch(reject);
+		});
+	});
+};
+
+exports.toAPIPoints = toAPIPoints;
 
 PointSchema.methods.updateConflict = function updateConflict (updateId) {
 	if (this._id === undefined) { return false; }
