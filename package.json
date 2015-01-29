@@ -10,16 +10,16 @@
   "scripts": {
     "dev": "grunt",
 	"start": "node index.js",
-	"test": "mocha test/points-*.js"
+	"test": "mocha test/*.js"
   },
   "dependencies": {
     "body-parser": "^1.10.0",
     "cors": "^2.5.2",
     "express": "^4.10.6",
+    "bluebird": "^2.5.2",
     "mongoose": "^3.8.20"
   },
   "devDependencies": {
-    "bluebird": "^2.5.2",
     "chai": "^1.10.0",
     "expect.js": "^0.3.1",
     "grunt": "^0.4.5",
