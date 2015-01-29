@@ -1,16 +1,16 @@
 const mongoose = require('mongoose');
 var Promise = require("bluebird");
-var pointsData = require('../api/modules/points/points-data');
-var Point = require('../api/modules/points/schema');
+var controller = require('../api/modules/waypoints/controller');
+var Waypoint = require('../api/modules/waypoints/schema');
 
-var createPoint = Promise.promisify(Point.create, Point);
+var createWaypoint = Promise.promisify(Waypoint.create, Waypoint);
 
-exports.seedPointsDB = function() {
-    return pointsData.findPoints({}).then(function(collection) {
+exports.seedWaypointsDB = function() {
+    return waypointsData.findWaypoints({}).then(function(collection) {
       if(collection.length === 0) {
-          console.log('seeding points');
-          return Promise.map(seedPoints, function(point) {
-              return createPoint(point);
+          console.log('seeding waypoints');
+          return Promise.map(seedWaypoints, function(waypoint) {
+              return createWaypoint(waypoint);
           });
       }
         else {
@@ -22,7 +22,7 @@ exports.seedPointsDB = function() {
 };
 
 
-var seedPoints = [
+var seedWaypoints = [
         {
             curator: "Marijn",
             title: "Creating an unacademic API",
