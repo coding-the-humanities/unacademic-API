@@ -4,6 +4,11 @@ var mongoose = require('mongoose');
 var BPromise = require('bluebird');
 var Constellation = require('../api/modules/constellations/schema');
 
+const host = process.env.HOST || '0.0.0.0';
+const port = process.env.PORT || '8080';
+
+var apiURL = 'http://' + host + ':' + port + '/' + 'api/0/constellations';
+
 var mongoLocalURL = "mongodb://localhost/unacademic_api";
 var mongoLabURL = "mongodb://admin:eOZE.97iNn@ds029051.mongolab.com:29051/unacademic_api";
 
@@ -45,7 +50,7 @@ describe("when saving constellations", function() {
 			connectDB(mongoURL)
 			.then(resetConstellations)
 			.then(function() {
-				superagent.post('http://0.0.0.0:8080/api/0/constellations').send(mockConstellation).end(function(err, response) {
+				superagent.post(apiURL).send(mockConstellation).end(function(err, response) {
 					error = err;
 					postedConstellation = response.body;
 					status = response.status;
@@ -71,7 +76,7 @@ describe("when saving constellations", function() {
 	describe("with existing foreign key", function() {
 
 		before(function(done) {
-			superagent.post('http://0.0.0.0:8080/api/0/constellations').send(mockConstellation).end(function(err, response) {
+			superagent.post(apiURL).send(mockConstellation).end(function(err, response) {
 				error = err;
 				responseError = response.error.text;
 				status = response.status;
@@ -90,7 +95,7 @@ describe("when saving constellations", function() {
 		it("should return an error if required fields are missing", function(done) {
 			var invalidConstellation = mockConstellation;
 			delete invalidConstellation.title;
-			superagent.post('http://0.0.0.0:8080/api/0/constellations').send(invalidConstellation).end(function(err, response) {
+			superagent.post(apiURL).send(invalidConstellation).end(function(err, response) {
 				var error = response.error.text;
 
 				expect(response.error.text).to.equal('Constellation is missing required fields \'title\'')
@@ -114,7 +119,7 @@ describe("when getting constellations", function() {
 	var id;
 	var status;
 	before (function(done) {
-		superagent.get('http://0.0.0.0:8080/api/0/constellations').end(function(err, response) {
+		superagent.get(apiURL).end(function(err, response) {
 			error = err;
 			getConstellations = response.body;
 			status = response.status;
@@ -126,7 +131,7 @@ describe("when getting constellations", function() {
 	describe("with an existing id", function() {
 		var getConstellation;
 		before (function(done) {
-			superagent.get('http://0.0.0.0:8080/api/0/constellations/' + id).end(function(err, response) {
+			superagent.get(apiURL + '/' + id).end(function(err, response) {
 				error = err;
 				getConstellation = response.body;
 				status = response.status;
@@ -151,7 +156,7 @@ describe("when getting constellations", function() {
 		var id = "bla";
 		var error;
 		before (function(done) {
-			superagent.get('http://0.0.0.0:8080/api/0/constellations/' + id).end(function(err, response) {
+			superagent.get(apiURL + '/' + id).end(function(err, response) {
 				error = response.error.text;
 				getConstellation = response.body;
 				status = response.status;
@@ -177,7 +182,7 @@ describe("when updating a constellation", function() {
 
 			mockUpdate.title = "Nsync";
 
-			superagent.put('http://0.0.0.0:8080/api/0/constellations/' + postedConstellationId).send(mockUpdate).end(function(err, response) {
+			superagent.put(apiURL + '/' + postedConstellationId).send(mockUpdate).end(function(err, response) {
 				updatedConstellation = response.body;
 				done();
 			});
@@ -197,7 +202,7 @@ describe("when updating a constellation", function() {
 
 			mockUpdate.curator = "marijn";
 
-			superagent.put('http://0.0.0.0:8080/api/0/constellations/' + postedConstellationId).send(mockUpdate).end(function(err, response) {
+			superagent.put(apiURL + '/' + postedConstellationId).send(mockUpdate).end(function(err, response) {
 				error = response.error.text;
 				updatedConstellation = response.body;
 				done();

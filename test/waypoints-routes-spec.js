@@ -4,6 +4,11 @@ var mongoose = require('mongoose');
 var BPromise = require('bluebird');
 var Waypoint = require('../api/modules/waypoints/schema');
 
+const host = process.env.HOST || '0.0.0.0';
+const port = process.env.PORT || '8080';
+
+var apiURL = 'http://' + host + ':' + port + '/' + 'api/0/waypoints';
+
 var mongoLocalURL = "mongodb://localhost/unacademic_api";
 var mongoLabURL = "mongodb://admin:eOZE.97iNn@ds029051.mongolab.com:29051/unacademic_api";
 
@@ -89,7 +94,7 @@ describe("when saving waypoints", function() {
 			connectDB(mongoURL)
 			.then(resetWaypoints)
 			.then(function() {
-				superagent.post('http://0.0.0.0:8080/api/0/waypoints').send(mockWaypoint).end(function(err, response) {
+				superagent.post(apiURL).send(mockWaypoint).end(function(err, response) {
 					error = err;
 					postedWaypoint = response.body;
 					status = response.status;
@@ -115,7 +120,7 @@ describe("when saving waypoints", function() {
 	describe("with existing foreign key", function() {
 
 		before(function(done) {
-			superagent.post('http://0.0.0.0:8080/api/0/waypoints').send(mockWaypoint).end(function(err, response) {
+			superagent.post(apiURL).send(mockWaypoint).end(function(err, response) {
 				error = err;
 				responseError = response.error.text;
 				status = response.status;
@@ -134,7 +139,7 @@ describe("when saving waypoints", function() {
 		it("should return an error if required fields are missing", function(done) {
 			var invalidWaypoint = mockWaypoint;
 			delete invalidWaypoint.title;
-			superagent.post('http://0.0.0.0:8080/api/0/waypoints').send(invalidWaypoint).end(function(err, response) {
+			superagent.post(apiURL).send(invalidWaypoint).end(function(err, response) {
 				var error = response.error.text;
 
 				expect(response.error.text).to.equal('Waypoint is missing required fields \'title\'')
@@ -158,7 +163,7 @@ describe("when getting waypoints", function() {
 	var id;
 	var status;
 	before (function(done) {
-		superagent.get('http://0.0.0.0:8080/api/0/waypoints').end(function(err, response) {
+		superagent.get(apiURL).end(function(err, response) {
 			error = err;
 			getWaypoints = response.body;
 			status = response.status;
@@ -170,7 +175,7 @@ describe("when getting waypoints", function() {
 	describe("with an existing id", function() {
 		var getWaypoint;
 		before (function(done) {
-			superagent.get('http://0.0.0.0:8080/api/0/waypoints/' + id).end(function(err, response) {
+			superagent.get(apiURL + '/' + id).end(function(err, response) {
 				error = err;
 				getWaypoint = response.body;
 				status = response.status;
@@ -195,7 +200,7 @@ describe("when getting waypoints", function() {
 		var id = "bla";
 		var error;
 		before (function(done) {
-			superagent.get('http://0.0.0.0:8080/api/0/waypoints/' + id).end(function(err, response) {
+			superagent.get(apiURL + '/' + id).end(function(err, response) {
 				error = response.error.text;
 				getWaypoint = response.body;
 				status = response.status;
@@ -221,7 +226,7 @@ describe("when updating a waypoint", function() {
 
 			mockUpdate.title = "Nsync";
 
-			superagent.put('http://0.0.0.0:8080/api/0/waypoints/' + postedWaypointId).send(mockUpdate).end(function(err, response) {
+			superagent.put(apiURL + '/' + postedWaypointId).send(mockUpdate).end(function(err, response) {
 				updatedWaypoint = response.body;
 				done();
 			});
@@ -241,7 +246,7 @@ describe("when updating a waypoint", function() {
 
 			mockUpdate.curator = "marijn";
 
-			superagent.put('http://0.0.0.0:8080/api/0/waypoints/' + postedWaypointId).send(mockUpdate).end(function(err, response) {
+			superagent.put(apiURL + '/' + postedWaypointId).send(mockUpdate).end(function(err, response) {
 				error = response.error.text;
 				updatedWaypoint = response.body;
 				done();
