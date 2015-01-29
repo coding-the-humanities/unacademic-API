@@ -7,6 +7,9 @@ var Constellation = require('../api/modules/constellations/schema');
 var mongoLocalURL = "mongodb://localhost/unacademic_api";
 var mongoLabURL = "mongodb://admin:eOZE.97iNn@ds029051.mongolab.com:29051/unacademic_api";
 
+var mongoURL = mongoLabURL;
+//var mongoURL = mongoLocalURL;
+
 function resetConstellations() {
     return new BPromise(function(resolve, reject) {
         mongoose.connection.collections['constellations'].drop(resolve, reject);
@@ -39,8 +42,7 @@ describe("when saving constellations", function() {
 
 	describe("that are valid constellations", function() {
 		before(function(done) {
-			//connectDB(mongoLabURL)
-			connectDB(mongoLocalURL)
+			connectDB(mongoURL)
 			.then(resetConstellations)
 			.then(function() {
 				superagent.post('http://0.0.0.0:8080/api/0/constellations').send(mockConstellation).end(function(err, response) {

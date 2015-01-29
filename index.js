@@ -12,8 +12,8 @@ var login = {
 var mongoLocalURL = "mongodb://" + host + "/unacademic_api";
 var mongoLabURL = "mongodb://" + login.user + ":" + login.pass + "@ds029051.mongolab.com:29051/unacademic_api";
 
-//mongoose.connect(mongoLabURL);
-mongoose.connect(mongoLocalURL);
+mongoose.connect(mongoLabURL);
+//mongoose.connect(mongoLocalURL);
 
 var con = mongoose.connection;
 

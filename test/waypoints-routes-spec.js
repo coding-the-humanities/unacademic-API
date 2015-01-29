@@ -7,6 +7,9 @@ var Waypoint = require('../api/modules/waypoints/schema');
 var mongoLocalURL = "mongodb://localhost/unacademic_api";
 var mongoLabURL = "mongodb://admin:eOZE.97iNn@ds029051.mongolab.com:29051/unacademic_api";
 
+var mongoURL = mongoLabURL;
+//var mongoURL = mongoLocalURL;
+
 function resetWaypoints() {
     return new BPromise(function(resolve, reject) {
         mongoose.connection.collections['waypoints'].drop(resolve, reject);
@@ -83,8 +86,7 @@ describe("when saving waypoints", function() {
 
 	describe("that are valid waypoints", function() {
 		before(function(done) {
-			//connectDB(mongoLabURL)
-			connectDB(mongoLocalURL)
+			connectDB(mongoURL)
 			.then(resetWaypoints)
 			.then(function() {
 				superagent.post('http://0.0.0.0:8080/api/0/waypoints').send(mockWaypoint).end(function(err, response) {
