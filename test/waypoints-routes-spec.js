@@ -13,7 +13,6 @@ var mongoLocalURL = "mongodb://localhost/unacademic_api";
 var mongoLabURL = "mongodb://admin:eOZE.97iNn@ds029051.mongolab.com:29051/unacademic_api";
 
 var mongoURL = mongoLabURL;
-//var mongoURL = mongoLocalURL;
 
 function resetWaypoints() {
     return new BPromise(function(resolve, reject) {
@@ -175,7 +174,7 @@ describe("when getting waypoints", function() {
 	describe("with an existing id", function() {
 		var getWaypoint;
 		before (function(done) {
-			superagent.get(apiURL + '/' + id).end(function(err, response) {
+			superagent.get(apiURL + '/id/' + id).end(function(err, response) {
 				error = err;
 				getWaypoint = response.body;
 				status = response.status;
@@ -196,11 +195,12 @@ describe("when getting waypoints", function() {
 			expect(status).to.equal(200);
 		});
 	});
+
 	describe("with an non-existing id", function() {
 		var id = "bla";
 		var error;
 		before (function(done) {
-			superagent.get(apiURL + '/' + id).end(function(err, response) {
+			superagent.get(apiURL + '/id/' + id).end(function(err, response) {
 				error = response.error.text;
 				getWaypoint = response.body;
 				status = response.status;
@@ -210,9 +210,28 @@ describe("when getting waypoints", function() {
 
 		it("should return an error that there is no waypoint with that id", function() {
 			expect(status).to.equal(500);
-			expect(error).to.equal("Waypoint with id " + id + " does not exist");
+			expect(error).to.equal("Waypoint does not exist");
 		});
 	});
+
+	describe('with an existing user and title', function() {
+		var user = "yeehaa";
+		var title = 'Async'
+		before (function(done) {
+			superagent.get(apiURL + '/user/' + user + '/title/' + title).end(function(err, response) {
+				error = response.error.text;
+				getWaypoint = response.body;
+				status = response.status;
+				done();
+			});
+		});
+
+		it('should return a waypoint with the correct creator and title', function() {
+			expect(getWaypoint.curator).to.equal(user);
+			expect(getWaypoint.title).to.equal(title);
+		})
+	})
+
 });
 
 describe("when updating a waypoint", function() {
@@ -226,7 +245,7 @@ describe("when updating a waypoint", function() {
 
 			mockUpdate.title = "Nsync";
 
-			superagent.put(apiURL + '/' + postedWaypointId).send(mockUpdate).end(function(err, response) {
+			superagent.put(apiURL + '/id/' + postedWaypointId).send(mockUpdate).end(function(err, response) {
 				updatedWaypoint = response.body;
 				done();
 			});
@@ -246,7 +265,7 @@ describe("when updating a waypoint", function() {
 
 			mockUpdate.curator = "marijn";
 
-			superagent.put(apiURL + '/' + postedWaypointId).send(mockUpdate).end(function(err, response) {
+			superagent.put(apiURL + '/id/' + postedWaypointId).send(mockUpdate).end(function(err, response) {
 				error = response.error.text;
 				updatedWaypoint = response.body;
 				done();

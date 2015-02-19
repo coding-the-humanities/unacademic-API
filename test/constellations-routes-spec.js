@@ -131,7 +131,7 @@ describe("when getting constellations", function() {
 	describe("with an existing id", function() {
 		var getConstellation;
 		before (function(done) {
-			superagent.get(apiURL + '/' + id).end(function(err, response) {
+			superagent.get(apiURL + '/id/' + id).end(function(err, response) {
 				error = err;
 				getConstellation = response.body;
 				status = response.status;
@@ -156,7 +156,7 @@ describe("when getting constellations", function() {
 		var id = "bla";
 		var error;
 		before (function(done) {
-			superagent.get(apiURL + '/' + id).end(function(err, response) {
+			superagent.get(apiURL + '/id/' + id).end(function(err, response) {
 				error = response.error.text;
 				getConstellation = response.body;
 				status = response.status;
@@ -166,7 +166,26 @@ describe("when getting constellations", function() {
 
 		it("should return an error that there is no constellation with that id", function() {
 			expect(status).to.equal(500);
-			expect(error).to.equal("Constellation with id " + id + " does not exist");
+			expect(error).to.equal("Constellation does not exist");
+		});
+	});
+
+	describe('with an existing user and title', function() {
+		var user = "yeehaa";
+		var title = "Coding the Humanities";
+
+		before (function(done) {
+			superagent.get(apiURL + '/user/' + user + '/title/' + title).end(function(err, response) {
+				error = response.error.text;
+				getConstellation = response.body;
+				status = response.status;
+				done();
+			});
+		});
+
+		it('should return a constellation with the correct creator and title', function() {
+			expect(getConstellation.curator).to.equal(user);
+			expect(getConstellation.title).to.equal(title);
 		});
 	});
 });
@@ -182,7 +201,7 @@ describe("when updating a constellation", function() {
 
 			mockUpdate.title = "Nsync";
 
-			superagent.put(apiURL + '/' + postedConstellationId).send(mockUpdate).end(function(err, response) {
+			superagent.put(apiURL + '/id/' + postedConstellationId).send(mockUpdate).end(function(err, response) {
 				updatedConstellation = response.body;
 				done();
 			});
@@ -202,7 +221,7 @@ describe("when updating a constellation", function() {
 
 			mockUpdate.curator = "marijn";
 
-			superagent.put(apiURL + '/' + postedConstellationId).send(mockUpdate).end(function(err, response) {
+			superagent.put(apiURL + '/id/' + postedConstellationId).send(mockUpdate).end(function(err, response) {
 				error = response.error.text;
 				updatedConstellation = response.body;
 				done();
