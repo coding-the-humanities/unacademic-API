@@ -11,11 +11,11 @@ function toAPI(waypoint) {
 		var ret = { 'id': waypoint.id };
 		var fields = Waypoint.getFields();
 		for (var prop in waypoint) {
-			if (fields.allFields.indexOf(prop) > 1) {
+			if (fields.allFields.indexOf(prop) > -1) {
 				ret[prop] = waypoint[prop];
 			}
 		}
-			console.log('toAPI: no error');
+		console.log('toAPI: no error');
 		return resolve(ret);
 	});
 }
@@ -61,17 +61,25 @@ function testMissingFields(waypoint) {
 	});
 }
 
-function testCurator(waypointData, id) {
+function testCurator(waypointData, query) {
 	return new BPromise(function(resolve, reject) {
-		mongoose.model('waypoint').findById(id, function(err, foundWaypoint) {
+		var findPromise = BPromise.cast(mongoose.model('waypoint').findOne(query).exec());
+		//mongoose.model('waypoint').findById(id, function(err, foundWaypoint) {
+		findPromise.then(function(foundWaypoint) {
+
 			if (foundWaypoint.curator !== waypointData.curator) {
 				var error = new Error('updated waypoint has different curator than existing waypoint');
 				console.log(error);
 				return reject(error);
 			}
 			console.log('testCurator: no error');
-			waypointData.id = id;
+			waypointData.id = foundWaypoint.id;
 			return resolve(waypointData);
+		});
+		findPromise.catch(function(error) {
+			console.log(error);
+			error = new Error('updating non-existent waypoint');
+			return reject(error);
 		});
 	});
 }
@@ -82,7 +90,7 @@ function testVersionFormat(waypoint) {
 			return reject(error);
 			//return reject("version is not in SemVer format");
 		}
-			console.log('testVersionFormat: no error');
+		console.log('testVersionFormat: no error');
 		return resolve(waypoint);
 	});
 }
@@ -90,6 +98,11 @@ function testVersionFormat(waypoint) {
 function lowerKeywords(waypoint) {
 	return new BPromise(function(resolve) {
 		var lowKeywords = [];
+		if (!('keywords' in waypoint) || waypoint.keywords.length === 0) {
+			console.log('lowerKeywords: no keywords in waypoint');
+			return resolve(waypoint);
+		}
+
 		waypoint.keywords.forEach(function(keyword) {
 			lowKeywords.push(keyword.toLowerCase());
 			if (lowKeywords.length === waypoint.keywords.length) {
@@ -141,18 +154,16 @@ function updateDB(waypointData) {
 
 function saveToDB(waypoint) {
 	return new BPromise(function(resolve, reject) {
-		waypoint.save(function(err, savedWaypoint) {
-			if (err) {
-				return reject(err);
+		waypoint.save(function(error, savedWaypoint) {
+			if (error) {
+				return reject(error);
 			}
-			console.log('waypoint saved');
 			return resolve(savedWaypoint);
 		});
 	});
 }
 
-exports.getWaypoint = function(waypointId) {
-	var query = {_id: waypointId };
+exports.getWaypoint = function(query) {
 	console.log('locating waypoint with query ' + JSON.stringify(query));
 	return new BPromise(function(resolve, reject) {
 		BPromise.onPossiblyUnhandledRejection(function(error) {
@@ -166,8 +177,10 @@ exports.getWaypoint = function(waypointId) {
 
 		findPromise.catch(function(error) {
 			console.log('catching find error');
+			console.log(error);
 			if (error.name === 'CastError') {
-				var findError = 'Waypoint with id ' + waypointId + ' does not exist';
+				console.log(error.name);
+				var findError = 'Waypoint does not exist';
 				console.log(findError);
 				return reject(findError);
 			}
@@ -176,22 +189,22 @@ exports.getWaypoint = function(waypointId) {
 	});
 };
 
-exports.getWaypoints = function() {
+exports.getWaypoints = function(query) {
+	console.log('locating waypoints with query ' + JSON.stringify(query));
 	return new BPromise(function(resolve, reject) {
 
-		var findPromise = findWaypoints({})
+		var findPromise = findWaypoints(query)
 			.then(toAPIWaypoints)
 			.then(resolve);
-		console.log('in getWaypoints');
 
 		findPromise.catch(reject);
 	});
 };
 
-exports.updateWaypoint = function(id, waypointData) {
+exports.updateWaypoint = function(query, waypointData) {
 	console.log('starting update');
 	return new BPromise(function(resolve, reject) {
-		var updatePromise = testCurator(waypointData, id)
+		var updatePromise = testCurator(waypointData, query)
 			.then(testMissingFields)
 			.then(testVersionFormat)
 			.then(lowerKeywords)

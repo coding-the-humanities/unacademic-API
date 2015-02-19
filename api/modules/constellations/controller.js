@@ -11,7 +11,7 @@ function toAPI(constellation) {
 		var ret = { 'id': constellation.id };
 		var fields = Constellation.getFields();
 		for (var prop in constellation) {
-			if (fields.allFields.indexOf(prop) > 1) {
+			if (fields.allFields.indexOf(prop) > -1) {
 				ret[prop] = constellation[prop];
 			}
 		}
@@ -61,16 +61,18 @@ function testMissingFields(constellation) {
 	});
 }
 
-function testCurator(constellationData, id) {
+function testCurator(constellationData, query) {
 	return new BPromise(function(resolve, reject) {
-		mongoose.model('constellation').findById(id, function(err, foundConstellation) {
+		var findPromise = BPromise.cast(mongoose.model('constellation').findOne(query).exec());
+		findPromise.then(function(foundConstellation) {
+		//mongoose.model('constellation').findById(id, function(err, foundConstellation) {
 			if (foundConstellation.curator !== constellationData.curator) {
 				var error = new Error('updated constellation has different curator than existing constellation');
 				console.log(error);
 				return reject(error);
 			}
 			console.log('testCurator: no error');
-			constellationData.id = id;
+			constellationData.id = foundConstellation.id;
 			return resolve(constellationData);
 		});
 	});
@@ -90,6 +92,11 @@ function testVersionFormat(constellation) {
 function lowerKeywords(constellation) {
 	return new BPromise(function(resolve) {
 		var lowKeywords = [];
+		if (!('keywords' in constellation) || constellation.keywords.length === 0) {
+			console.log('lowerKeywords: no keywords in constellation');
+			return resolve(constellation);
+		}
+
 		constellation.keywords.forEach(function(keyword) {
 			lowKeywords.push(keyword.toLowerCase());
 			if (lowKeywords.length === constellation.keywords.length) {
@@ -151,8 +158,7 @@ function saveToDB(constellation) {
 	});
 }
 
-exports.getConstellation = function(constellationId) {
-	var query = {_id: constellationId };
+exports.getConstellation = function(query) {
 	console.log('locating constellation with query ' + JSON.stringify(query));
 	return new BPromise(function(resolve, reject) {
 		BPromise.onPossiblyUnhandledRejection(function(error) {
@@ -167,7 +173,7 @@ exports.getConstellation = function(constellationId) {
 		findPromise.catch(function(error) {
 			console.log('catching find error');
 			if (error.name === 'CastError') {
-				var findError = 'Constellation with id ' + constellationId + ' does not exist';
+				var findError = 'Constellation does not exist';
 				console.log(findError);
 				return reject(findError);
 			}
@@ -176,22 +182,22 @@ exports.getConstellation = function(constellationId) {
 	});
 };
 
-exports.getConstellations = function() {
+exports.getConstellations = function(query) {
+	console.log('locating constellations with query ' + JSON.stringify(query));
 	return new BPromise(function(resolve, reject) {
 
-		var findPromise = findConstellations({})
+		var findPromise = findConstellations(query)
 			.then(toAPIConstellations)
 			.then(resolve);
-		console.log('in getConstellations');
 
 		findPromise.catch(reject);
 	});
 };
 
-exports.updateConstellation = function(id, constellationData) {
+exports.updateConstellation = function(query, constellationData) {
 	console.log('starting update');
 	return new BPromise(function(resolve, reject) {
-		var updatePromise = testCurator(constellationData, id)
+		var updatePromise = testCurator(constellationData, query)
 			.then(testMissingFields)
 			.then(testVersionFormat)
 			.then(lowerKeywords)
