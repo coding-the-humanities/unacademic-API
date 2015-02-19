@@ -1,6 +1,8 @@
 var expect = require("chai").expect;
 var superagent = require("superagent");
 var mongoose = require('mongoose');
+const express = require('express');
+const app = express();
 var BPromise = require('bluebird');
 var Waypoint = require('../api/modules/waypoints/schema');
 
@@ -21,6 +23,24 @@ function resetWaypoints() {
 }
 
 var connectDB = BPromise.promisify(mongoose.connect, mongoose);
+
+var con = mongoose.connection;
+
+con.once('open', function() {
+	console.log('connected to mongodb successfully');
+});
+
+con.once('error', function() {
+	console.log('MongoLab connection error');
+	console.error.bind(console, 'connection error:');
+});
+
+
+app.use(require('../api'));
+
+app.listen(port, host);
+
+console.log('Server running on %s:%d...', host, port);
 
 var mockWaypoint = {
 	title: "Async",
@@ -149,10 +169,12 @@ describe("when saving waypoints", function() {
 
 	});
 
+	/*
 	after(function(done) {
 		mongoose.connection.close();
 		done();
 	});
+	*/
 
 });
 
