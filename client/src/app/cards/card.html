@@ -1,0 +1,45 @@
+<section class="card ng-class:card.type">
+  <div class="heading">
+    <div class="bio">
+      <h1>{{card.title}}</h1>
+      <img src="http://www.innovata-llc.com/fullpanel/uploads/files/global-data.jpg" alt="background" class="bg">
+      <div class="desc">
+        <h3>{{card.curator}}</h3>
+        <p>{{card.description}}</p>
+        <div class="tags">
+          <p>{{card.keywords}}</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="avatarcontainer">
+      <div class="hover">
+        <div class="icon-anchor"></div>
+      </div>
+    </div>
+  </div>
+
+  <p class="summary">{{card.summary}}</p>
+  <div class="content">
+    <div class="data">
+      <ul>
+        <li>
+        <h4>8,5</h4>
+        <span>Rating</span>
+        </li>
+        <li>
+        <h4>1,119</h4>
+        <span>Followers</span>
+        </li>
+        <li>
+        <h4>30000</h4>
+        <span>Likes</span>
+        </li>
+      </ul>
+    </div>
+  <div ng-click="card.goTo(card)" class="follow">Learn</div>
+  <div ng-click="card.goTo(card)" class="follow">Browse</div>
+
+  </div>
+</div>
+</section>
