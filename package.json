@@ -9,8 +9,11 @@
   "author": "Coding the Humanities",
   "scripts": {
     "dev": "grunt",
-	"start": "node index.js",
-	"test": "mocha test/*.js"
+  	"start": "node index.js",
+  	"test": "mocha test/*.js",
+    "provision-vagrant": "ansible-playbook -i devops/inventories/vagrant.yml devops/provision/provision.yml",
+    "provision-staging": "ansible-playbook -i devops/inventories/staging.yml devops/provision/provision.yml",
+    "deploy-staging": "ansible-playbook -i devops/inventories/staging.yml devops/commands/deploy.yml --ask-pass"
   },
   "dependencies": {
     "body-parser": "^1.10.0",
