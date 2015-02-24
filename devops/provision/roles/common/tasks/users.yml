@@ -8,9 +8,9 @@
 #   tags: users
 
 # - name: users | deploy | provision id_rsa
-#   template: src=keys/deploy dest=/home/deploy/.ssh/id_rsa mode=0600 owner=deploy
+#   template: src=keys/unacademic-deployuserkey dest=/home/deploy/.ssh/id_rsa mode=0600 owner=deploy
 #   tags: users
 
 # - name: users | deploy | provision id_rsa.pub
-#   template: src=keys/deploy.pub dest=/home/deploy/.ssh/id_rsa.pub mode=0600 owner=deploy
+#   template: src=keys/unacademic-deployuserkey.pub dest=/home/deploy/.ssh/id_rsa.pub mode=0600 owner=deploy
 #   tags: users

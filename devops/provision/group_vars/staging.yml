@@ -2,7 +2,7 @@
 web:
   root: /home/deploy/unacademic
   public: /home/deploy/unacademic/client/dist
-  url: unacademic.dev
+  port: 8080
   api:
     location: /api
 

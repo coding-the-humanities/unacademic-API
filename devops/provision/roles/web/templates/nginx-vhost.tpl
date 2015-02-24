@@ -1,4 +1,4 @@
-upstream {{ web.url }} {
+upstream backend {
     server 127.0.0.1:{{ web.port }};
 }
 
@@ -27,7 +27,7 @@ server {
         proxy_set_header Host $http_host;
         proxy_set_header X-NginX-Proxy true;
 
-        proxy_pass http://localhost:{{web.port}};
+        proxy_pass http://backend;
         proxy_redirect off;
     }
  }

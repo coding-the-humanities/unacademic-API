@@ -2,7 +2,6 @@
 web:
   root: /home/deploy/unacademic
   public: /home/deploy/unacademic/client/dist
-  url: unacademic.dev
   port: 8080
   api:
     location: /api
@@ -11,6 +10,6 @@ web:
     APPLICATION_HOST: unacademic.dev
     APPLICATION_PORT: 8080
     APPLICATION_SECRET: thisisasecret
-    DATABASE_HOST: 33.33.33.33
+    DATABASE_HOST: localhost
     DATABASE_NAME: unacademic
     DATABASE_PORT: 27017
