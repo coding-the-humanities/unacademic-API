@@ -10,7 +10,8 @@
   "scripts": {
     "dev": "grunt",
 	"start": "node index.js",
-	"test": "mocha test/*.js"
+	"test": "mocha test/*.js",
+    "provision-vagrant": "ansible-playbook -i devops/inventories/vagrant.yml devops/provision/provision.yml"
   },
   "dependencies": {
     "body-parser": "^1.10.0",
