@@ -35,11 +35,14 @@
    - name: structure | generate version file
      shell: echo "{\"version\":\"{{ describe.stdout }}\", \"deploydate\":\"{{ date.stdout }}\"}" > {{ deploy.to }}/releases/{{ timestamp.stdout }}/VERSION
 
-   - name: structure | server | npm install dependencies
+   - name: structure | server | npm install dependencies serverside
      npm: path={{ deploy.to }}/releases/{{ timestamp.stdout }}
 
-   # - name: structure | client | run grunt production
-   #   shell: node_modules/grunt-cli/bin/grunt production chdir={{ deploy.to }}/releases/{{ timestamp.stdout }}/client
+   - name: structure | client | npm install dependencies clientside
+     npm: path={{ deploy.to }}/releases/{{ timestamp.stdout }}/client
+
+   - name: structure | client | run grunt build to create production assets
+     shell: node_modules/grunt-cli/bin/grunt build chdir={{ deploy.to }}/releases/{{ timestamp.stdout }}/client
 
    - name: structure | release | set current
      file: src={{ deploy.to }}/releases/{{ timestamp.stdout }} dest={{ deploy.to }}/current state=link

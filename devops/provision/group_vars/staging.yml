@@ -1,7 +1,7 @@
 ---
 web:
   root: /home/deploy/unacademic
-  public: /home/deploy/unacademic/client/build
+  public: /home/deploy/unacademic/current/client/build
   port: 8080
   api:
     location: /api
