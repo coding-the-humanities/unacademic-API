@@ -32,3 +32,13 @@ This is the repository of the API for the Coding the Humanities unacademic web a
 ## Deploying to environment
 1. commit all required changes to repository
 2. `npm run deploy-staging`
+
+## Seeding the databse
+1. move to seeding directory
+	- `cd seeding`
+2. run yaml to json transformation
+	- `node prepare_seeds.js`
+3a. seed database if it’s empty:
+	- `node seedData.js`
+3b. alternatively, empty database and seed it:
+	- `node dropAndSeedData.js`
