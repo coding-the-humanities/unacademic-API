@@ -12,7 +12,7 @@ var seedCheckpoints = JSON.parse(fs.readFileSync('checkpoints.seeding.json', 'ut
 var seedConstellations = JSON.parse(fs.readFileSync('constellations.seeding.json', 'utf-8'));
 var dataTypes = ['constellations', 'waypoints'];
 
-var mongoLocalURL = "mongodb://" + host + "/unacademic_api";
+var mongoLocalURL = "mongodb://" + host + "/unacademic";
 mongoose.connect(mongoLocalURL);
 var con = mongoose.connection;
 

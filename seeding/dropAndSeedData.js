@@ -7,7 +7,7 @@ var Constellation = require('../api/modules/constellations/schema');
 var constellationsController = require('../api/modules/constellations/controller');
 const host = process.env.HOST || '0.0.0.0';
 
-var mongoLocalURL = "mongodb://" + host + "/unacademic_api";
+var mongoLocalURL = "mongodb://" + host + "/unacademic";
 mongoose.connect(mongoLocalURL);
 var con = mongoose.connection;
 

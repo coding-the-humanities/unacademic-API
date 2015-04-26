@@ -1,3 +1,6 @@
+const dbHost = process.env.DATABASE_HOST || 'localhost';
+const dbName = process.env.DATABASE_NAME || 'unacademic';
+const dbPort = process.env.DATABASE_PORT || 27017;
 const port = process.env.PORT || '8080';
 const host = process.env.HOST || '0.0.0.0';
 const mongoose = require('mongoose');
@@ -9,8 +12,9 @@ var login = {
 	"pass": "blabla"
 };
 
-var mongoLocalURL = "mongodb://" + process.env.DATABASE_HOST + ":" + process.env.DATABASE_PORT + "/" + process.env.DATABASE_NAME;
+var mongoLocalURL = "mongodb://" + dbHost + ":" + dbPort + "/" + dbName;
 // var mongoLabURL = "mongodb://" + login.user + ":" + login.pass + "@ds029051.mongolab.com:29051/unacademic_api";
+console.log(mongoLocalURL);
 
 // mongoose.connect(mongoLabURL);
 mongoose.connect(mongoLocalURL);
